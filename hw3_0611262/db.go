@@ -29,7 +29,7 @@ type Post struct {
 }
 
 func ConnectDB() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "db.db")
+	db, err := gorm.Open("sqlite3", "db.sqlite")
 	// db.LogMode(true)
 	if err != nil {
 		panic("failed to connect database")

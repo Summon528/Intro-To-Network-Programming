@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -13,12 +12,8 @@ func handleConnection(conn net.Conn) {
 	buf := make([]byte, 1048576)
 	bufLen, _ := conn.Read(buf)
 	response := HandleCmd(string(buf[:bufLen]))
-	json, err := json.Marshal(response)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(json))
-	fmt.Fprint(conn, string(json))
+	fmt.Println(response)
+	fmt.Fprint(conn, response)
 	conn.Close()
 }
 
