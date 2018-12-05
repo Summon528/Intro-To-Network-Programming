@@ -188,7 +188,7 @@ func handleAcceptInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	fields := strings.Fields(cmdMsg)
 	if len(fields) != 2 {
-		return &map[string]interface{}{"status": 1, "message": "Usage: Usage: accept-invite <user> <id>"}
+		return &map[string]interface{}{"status": 1, "message": "Usage: accept-invite <user> <id>"}
 	}
 	var user User
 	token, friendName := fields[0], fields[1]
