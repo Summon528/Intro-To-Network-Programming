@@ -1,0 +1,23 @@
+Not login yet
+Success!
+Success!
+Success!
+Success!
+Success!
+Success!
+Usage: join-group <user> <group>
+Usage: join-group <user> <group>
+www does not exist
+Already a member of DeMo_group1
+Already a member of DeMo_group1
+Success!
+Success!
+Success!
+Success!
+Success!
+Already a member of DeMo_group2
+Success!
+Success!
+Already a member of DeMo_group3
+Success!
+Success!

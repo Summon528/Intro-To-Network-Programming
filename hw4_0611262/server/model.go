@@ -14,9 +14,10 @@ type User struct {
 	Username  string `gorm:"not null;unique"`
 	Password  string `gorm:"not null;"`
 	Token     string
-	Posts     []Post  `gorm:"foreignkey:Owner"`
-	Friends   []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id"`
-	Invites   []*User `gorm:"many2many:invites;association_jointable_foreignkey:friend_id"`
+	Posts     []Post   `gorm:"foreignkey:Owner"`
+	Friends   []*User  `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id"`
+	Invites   []*User  `gorm:"many2many:invites;association_jointable_foreignkey:friend_id"`
+	Groups    []*Group `gorm:"many2many:group_members"`
 }
 
 type Post struct {
@@ -28,12 +29,20 @@ type Post struct {
 	Owner     User   `gorm:"foreignkey:OwnerID"`
 }
 
+type Group struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Groupname string
+	Members   []*User `gorm:"many2many:group_members"`
+}
+
 func ConnectDB() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "db.sqlite")
 	// db.LogMode(true)
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&User{}, &Post{})
+	db.AutoMigrate(&User{}, &Post{}, &Group{})
 	return db
 }

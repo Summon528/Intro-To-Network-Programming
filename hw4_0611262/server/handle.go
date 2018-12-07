@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/go-stomp/stomp"
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 )
 
 type responsePost struct {
@@ -23,25 +23,37 @@ func HandleCmd(cmd string) string {
 	var result *map[string]interface{}
 	switch cmdType {
 	case "register":
-		result = handleRegister(db, cmdMsg)
+		result = handleRegister(cmdMsg)
 	case "login":
-		result = handleLogin(db, cmdMsg)
+		result = handleLogin(cmdMsg)
 	case "delete":
-		result = handleDelete(db, cmdMsg)
+		result = handleDelete(cmdMsg)
 	case "logout":
-		result = handleLogout(db, cmdMsg)
+		result = handleLogout(cmdMsg)
 	case "invite":
-		result = handleInvite(db, cmdMsg)
+		result = handleInvite(cmdMsg)
 	case "list-invite":
-		result = handleListInvite(db, cmdMsg)
+		result = handleListInvite(cmdMsg)
 	case "accept-invite":
-		result = handleAcceptInvite(db, cmdMsg)
+		result = handleAcceptInvite(cmdMsg)
 	case "list-friend":
-		result = handleListFriend(db, cmdMsg)
+		result = handleListFriend(cmdMsg)
 	case "post":
-		result = handlePost(db, cmdMsg)
+		result = handlePost(cmdMsg)
 	case "receive-post":
-		result = handleRecivePost(db, cmdMsg)
+		result = handleRecivePost(cmdMsg)
+	case "send":
+		result = handleSend(cmdMsg)
+	case "create-group":
+		result = handleCreateGroup(cmdMsg)
+	case "list-group":
+		result = handleListGroup(cmdMsg)
+	case "list-joined":
+		result = handleListJoined(cmdMsg)
+	case "join-group":
+		result = handleJoinGroup(cmdMsg)
+	case "send-group":
+		result = handleSendGroup(cmdMsg)
 	default:
 		result = &map[string]interface{}{"status": 1, "message": "Unknown command " + cmdType}
 	}
@@ -57,7 +69,7 @@ func stupidToken(cmdMsg string) (*map[string]interface{}, bool) {
 	return &map[string]interface{}{}, true
 }
 
-func handleRegister(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleRegister(cmdMsg string) *map[string]interface{} {
 	fields := strings.Fields(cmdMsg)
 	if len(fields) != 2 {
 		return &map[string]interface{}{"status": 1, "message": "Usage: register <id> <password>"}
@@ -70,7 +82,7 @@ func handleRegister(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleLogin(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleLogin(cmdMsg string) *map[string]interface{} {
 	fields := strings.Fields(cmdMsg)
 	if len(fields) != 2 {
 		return &map[string]interface{}{"status": 1, "message": "Usage: login <id> <password>"}
@@ -87,7 +99,7 @@ func handleLogin(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "token": user.Token, "message": "Success!"}
 }
 
-func handleDelete(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleDelete(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -97,17 +109,16 @@ func handleDelete(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token := fields[0]
-	if db.Where("token = ?", token).First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).First(&user)
 	db.Delete(Post{}, "owner_id = ?", user.ID)
 	db.Exec("DELETE FROM friendships WHERE user_id = ? OR friend_id = ?", user.ID, user.ID)
 	db.Exec("DELETE FROM invites WHERE user_id = ? OR friend_id = ?", user.ID, user.ID)
+	db.Exec("DELETE FROM group_members WHERE user_id = ?", user.ID)
 	db.Delete(&user)
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleLogout(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleLogout(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -117,15 +128,13 @@ func handleLogout(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token := fields[0]
-	if db.Where("token = ?", token).First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).First(&user)
 	user.Token = ""
 	db.Save(&user)
 	return &map[string]interface{}{"status": 0, "message": "Bye!"}
 }
 
-func handleInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleInvite(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -135,9 +144,7 @@ func handleInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token, friendName := fields[0], fields[1]
-	if db.Where("token = ?", token).First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).First(&user)
 	if friendName == user.Username {
 		return &map[string]interface{}{"status": 1, "message": "You cannot invite yourself"}
 	}
@@ -162,7 +169,7 @@ func handleInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleListInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleListInvite(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -172,9 +179,7 @@ func handleListInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token := fields[0]
-	if db.Where("token = ?", token).Preload("Invites").First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).Preload("Invites").First(&user)
 	invites := make([]string, 0)
 	for _, invite := range user.Invites {
 		invites = append(invites, invite.Username)
@@ -182,7 +187,7 @@ func handleListInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "invite": invites}
 }
 
-func handleAcceptInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleAcceptInvite(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -192,9 +197,7 @@ func handleAcceptInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token, friendName := fields[0], fields[1]
-	if db.Where("token = ?", token).Preload("Invites", "username = ?", friendName).First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).Preload("Invites", "username = ?", friendName).First(&user)
 	if len(user.Invites) == 0 {
 		return &map[string]interface{}{"status": 1, "message": friendName + " did not invite you"}
 	}
@@ -205,7 +208,7 @@ func handleAcceptInvite(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleListFriend(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleListFriend(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -215,9 +218,7 @@ func handleListFriend(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token := fields[0]
-	if db.Where("token = ?", token).Preload("Friends").First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).Preload("Friends").First(&user)
 	friends := make([]string, 0)
 	for _, friend := range user.Friends {
 		friends = append(friends, friend.Username)
@@ -225,7 +226,7 @@ func handleListFriend(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "friend": friends}
 }
 
-func handlePost(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handlePost(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -235,14 +236,12 @@ func handlePost(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token, message := fields[0], fields[1]
-	if db.Where("token = ?", token).First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).First(&user)
 	db.Create(&Post{OwnerID: user.ID, Message: message})
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleRecivePost(db *gorm.DB, cmdMsg string) *map[string]interface{} {
+func handleRecivePost(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -252,9 +251,7 @@ func handleRecivePost(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 	}
 	var user User
 	token := fields[0]
-	if db.Where("token = ?", token).Preload("Friends").First(&user).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not login yet"}
-	}
+	db.Where("token = ?", token).Preload("Friends").First(&user)
 	var friends []uint
 	for _, friend := range user.Friends {
 		friends = append(friends, friend.ID)
@@ -266,4 +263,173 @@ func handleRecivePost(db *gorm.DB, cmdMsg string) *map[string]interface{} {
 		responsePosts = append(responsePosts, responsePost{ID: post.Owner.Username, Message: post.Message})
 	}
 	return &map[string]interface{}{"status": 0, "post": responsePosts}
+}
+
+type message struct {
+	Source  string `json:"source"`
+	Group   string `json:"group,omitempty"`
+	Message string `json:"message"`
+}
+
+func handleSend(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	if len(fields) < 3 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: send <user> <friend> <message>"}
+	}
+	var friend User
+	friendName := fields[1]
+	if db.Where("username = ?", friendName).Preload("Friends").First(&friend).RecordNotFound() {
+		return &map[string]interface{}{"status": 1, "message": "Not such user exist"}
+	}
+	token := fields[0]
+	var user User
+	db.Where("token = ?", token).First(&user)
+	flag := false
+	for _, i := range friend.Friends {
+		if i.Username == user.Username {
+			flag = true
+			break
+		}
+	}
+	if !flag {
+		return &map[string]interface{}{"status": 1, "message": friendName + " is not your friend"}
+	}
+	if friend.Token == "" {
+		return &map[string]interface{}{"status": 1, "message": friendName + " is not online"}
+	}
+	msg, _ := json.Marshal(message{Source: user.Username, Message: strings.Join(fields[2:], " ")})
+	stompConn, err := stomp.Dial("tcp", stompIp, options...)
+	if err != nil {
+		panic(err)
+	}
+	defer stompConn.Disconnect()
+	stompConn.Send("/queue/"+friendName, "text/plain", []byte(msg))
+	return &map[string]interface{}{"status": 0, "message": "Success!"}
+}
+
+func handleCreateGroup(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	token := fields[0]
+	var user User
+	db.Where("token = ?", token).First(&user)
+	if len(fields) != 2 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: create-group <user> <group>"}
+	}
+	groupName := fields[1]
+	if !db.Where("groupname = ?", groupName).First(&Group{}).RecordNotFound() {
+		return &map[string]interface{}{"status": 1, "message": groupName + " alreay exist"}
+	}
+	db.Create(&Group{Groupname: groupName, Members: []*User{&user}})
+	return &map[string]interface{}{"status": 0, "message": "Success!"}
+}
+
+func handleListGroup(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	if len(fields) != 1 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: list-group <user>"}
+	}
+	var groups []Group
+	db.Find(&groups)
+	resp := make([]string, 0)
+	for _, group := range groups {
+		resp = append(resp, group.Groupname)
+	}
+	return &map[string]interface{}{"status": 0, "group": resp}
+}
+
+func handleListJoined(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	if len(fields) != 1 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: list-joined <user>"}
+	}
+	var user User
+	token := fields[0]
+	db.Where("token = ?", token).Preload("Groups").First(&user)
+	resp := make([]string, 0)
+	for _, group := range user.Groups {
+		resp = append(resp, group.Groupname)
+	}
+	return &map[string]interface{}{"status": 0, "group": resp}
+}
+
+func handleJoinGroup(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	if len(fields) != 2 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: join-group <user> <group>"}
+	}
+	groupName := fields[1]
+	var group Group
+	if db.Where("groupname = ?", groupName).First(&group).RecordNotFound() {
+		return &map[string]interface{}{"status": 1, "message": groupName + " does not exist"}
+	}
+	var user User
+	token := fields[0]
+	db.Where("token = ?", token).Preload("Groups").First(&user)
+	for _, i := range user.Groups {
+		if i.Groupname == groupName {
+			return &map[string]interface{}{"status": 1, "message": "Already a member of " + groupName}
+		}
+	}
+	db.Model(&group).Association("members").Append(&user)
+	return &map[string]interface{}{"status": 0, "message": "Success!"}
+}
+
+func handleSendGroup(cmdMsg string) *map[string]interface{} {
+	if res, ok := stupidToken(cmdMsg); !ok {
+		return res
+	}
+	fields := strings.Fields(cmdMsg)
+	if len(fields) < 3 {
+		return &map[string]interface{}{"status": 1, "message": "Usage: send-group <user> <group> <message>"}
+	}
+	token := fields[0]
+	groupName := fields[1]
+	var group Group
+	var user User
+	if db.Where("groupname = ?", groupName).Preload("Members").First(&group).RecordNotFound() {
+		return &map[string]interface{}{"status": 1, "message": "No such group exist"}
+	}
+	db.Where("token = ?", token).First(&user)
+	flag := false
+	for _, memeber := range group.Members {
+		if memeber.ID == user.ID {
+			flag = true
+			break
+		}
+	}
+	if !flag {
+		return &map[string]interface{}{"status": 1, "message": "You are not the member of " + groupName}
+	}
+	msg, _ := json.Marshal(
+		message{
+			Source:  user.Username,
+			Message: strings.Join(fields[2:], " "),
+			Group:   groupName,
+		})
+	for _, member := range group.Members {
+		stompConn, err := stomp.Dial("tcp", stompIp, options...)
+		if err != nil {
+			panic(err)
+		}
+		defer stompConn.Disconnect()
+		if member.Token != "" {
+			stompConn.Send("/queue/"+member.Username, "text/plain", []byte(msg))
+		}
+	}
+	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }

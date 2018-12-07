@@ -2,6 +2,17 @@
 
 
 [[projects]]
+  digest = "1:c2f96f95b0f81674c856a5a4b92c6efffd20733d71f8106b939fabf54c1c25bb"
+  name = "github.com/go-stomp/stomp"
+  packages = [
+    ".",
+    "frame",
+  ]
+  pruneopts = "UT"
+  revision = "8a8033db547238f32a69359fc1b0c50359339e95"
+  version = "v2.0.1"
+
+[[projects]]
   digest = "1:3a26588bc48b96825977c1b3df964f8fd842cd6860cc26370588d3563433cf11"
   name = "github.com/google/uuid"
   packages = ["."]
@@ -40,6 +51,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/go-stomp/stomp",
     "github.com/google/uuid",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/sqlite",

@@ -1,0 +1,25 @@
+send-group DeMo_user1 DeMo_group1 msg1
+login DeMo_user1 DeMo_pwd1
+login DeMo_user2 DeMo_pwd2
+login DeMo_user3 DeMo_pwd3
+login DeMo_user4 DeMo_pwd4
+login DeMo_user5 DeMo_pwd5
+login DeMo_user6 DeMo_pwd6
+send-group DeMo_user1
+send-group DeMo_user1 qqq
+send-group DeMo_user1 qqq msg1
+send-group DeMo_user1 DeMo_group1 msg1
+send-group DeMo_user1 DeMo_group2 msg1
+send-group DeMo_user1 DeMo_group3 msg1
+logout DeMo_user2
+logout DeMo_user3
+logout DeMo_user4
+send-group DeMo_user1 DeMo_group1 msg2
+login DeMo_user2 DeMo_pwd2
+login DeMo_user4 DeMo_pwd4
+send-group DeMo_user1 DeMo_group1 msg3
+logout DeMo_user6
+send-group DeMo_user2 DeMo_group2 msg4
+login DeMo_user6 DeMo_pwd6
+send-group DeMo_user2 DeMo_group3 msg4
+exit

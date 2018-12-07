@@ -1,3 +1,4 @@
+// This version Unsubscribe when logout
 package main
 
 import (
@@ -39,7 +40,7 @@ var options []func(*stomp.Conn) error = []func(*stomp.Conn) error{
 	stomp.ConnOpt.Login("admin", "admin"),
 	stomp.ConnOpt.HeartBeatError(1000 * time.Hour),
 }
-var connected = make(map[string]bool)
+var logout = make(map[string]chan bool)
 
 func printResp(cmd string, resp response) {
 	if resp.Status != 0 {
@@ -113,15 +114,25 @@ func dial(cmd string) {
 	if fields[0] == "login" && resp.Status == 0 {
 		tokens[fields[1]] = resp.Token
 		subscribed := make(chan bool)
-		if _, prs := connected[username]; !prs {
-			go recvMessages(fields[1], subscribed)
+		if ch, prs := logout[username]; prs {
+			ch <- true
+			<-ch
 		}
+		logout[username] = make(chan bool)
+		go recvMessages(fields[1], logout[username], subscribed)
 		<-subscribed
+	}
+	if fields[0] == "logout" && resp.Status == 0 {
+		if ch, prs := logout[username]; prs {
+			delete(logout, username)
+			ch <- true
+			<-ch
+		}
 	}
 	printResp(fields[0], resp)
 }
 
-func recvMessages(username string, subscribed chan bool) {
+func recvMessages(username string, logout chan bool, subscribed chan bool) {
 	stompConn, err := stomp.Dial("tcp", stompIp, options...)
 	if err != nil {
 		panic(err)
@@ -131,17 +142,22 @@ func recvMessages(username string, subscribed chan bool) {
 		panic(err)
 	}
 	close(subscribed)
-	defer stompConn.Disconnect()
 	for {
-		resp := <-sub.C
-		msg := message{}
-		json.Unmarshal(resp.Body, &msg)
-		if msg.Group != "" {
-			fmt.Printf("<<<%s->GROUP<%s>:%s>>>\n", msg.Source, msg.Group, msg.Message)
-		} else {
-			fmt.Printf("<<<%s->%s:%s>>>\n", msg.Source, username, msg.Message)
+		select {
+		case <-logout:
+			sub.Unsubscribe()
+			stompConn.Disconnect()
+			close(logout)
+			return
+		case resp := <-sub.C:
+			msg := message{}
+			json.Unmarshal(resp.Body, &msg)
+			if msg.Group != "" {
+				fmt.Printf("<<<%s->GROUP<%s>:%s>>>\n", msg.Source, msg.Group, msg.Message)
+			} else {
+				fmt.Printf("<<<%s->%s:%s>>>\n", msg.Source, username, msg.Message)
+			}
 		}
-
 	}
 }
 
@@ -156,6 +172,5 @@ func main() {
 		} else {
 			dial(cmd)
 		}
-		time.Sleep(time.Millisecond * 100)
 	}
 }
