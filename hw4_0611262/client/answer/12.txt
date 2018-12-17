@@ -3,7 +3,7 @@ Success!
 Usage: create-group <user> <group>
 Usage: create-group <user> <group>
 Success!
-DeMo_group1 alreay exist
+DeMo_group1 already exist
 Not login yet
 Success!
 Success!

@@ -9,36 +9,36 @@ Usage: send-group <user> <group> <message>
 Usage: send-group <user> <group> <message>
 No such group exist
 Success!
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group2>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group2>:msg1>>>
-<<<DeMo_user1->GROUP<DeMo_group2>:msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group2>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group2>: msg1>>>
+<<<DeMo_user1->GROUP<DeMo_group2>: msg1>>>
 Success!
 You are not the member of DeMo_group3
 Bye!
 Bye!
 Bye!
-<<<DeMo_user1->GROUP<DeMo_group1>:msg2>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg2>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg2>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg2>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg2>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg2>>>
 Success!
 Success!
 Success!
-<<<DeMo_user1->GROUP<DeMo_group1>:msg3>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg3>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg3>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg3>>>
-<<<DeMo_user1->GROUP<DeMo_group1>:msg3>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg3>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg3>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg3>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg3>>>
+<<<DeMo_user1->GROUP<DeMo_group1>: msg3>>>
 Success!
 Bye!
 You are not the member of DeMo_group2
 Success!
-<<<DeMo_user2->GROUP<DeMo_group3>:msg4>>>
-<<<DeMo_user2->GROUP<DeMo_group3>:msg4>>>
-<<<DeMo_user2->GROUP<DeMo_group3>:msg4>>>
+<<<DeMo_user2->GROUP<DeMo_group3>: msg4>>>
+<<<DeMo_user2->GROUP<DeMo_group3>: msg4>>>
+<<<DeMo_user2->GROUP<DeMo_group3>: msg4>>>
 Success!

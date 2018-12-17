@@ -137,9 +137,9 @@ func recvMessages(username string, subscribed chan bool) {
 		msg := message{}
 		json.Unmarshal(resp.Body, &msg)
 		if msg.Group != "" {
-			fmt.Printf("<<<%s->GROUP<%s>:%s>>>\n", msg.Source, msg.Group, msg.Message)
+			fmt.Printf("<<<%s->GROUP<%s>: %s>>>\n", msg.Source, msg.Group, msg.Message)
 		} else {
-			fmt.Printf("<<<%s->%s:%s>>>\n", msg.Source, username, msg.Message)
+			fmt.Printf("<<<%s->%s: %s>>>\n", msg.Source, username, msg.Message)
 		}
 
 	}

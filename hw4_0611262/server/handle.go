@@ -282,7 +282,7 @@ func handleSend(cmdMsg string) *map[string]interface{} {
 	var friend User
 	friendName := fields[1]
 	if db.Where("username = ?", friendName).Preload("Friends").First(&friend).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": "Not such user exist"}
+		return &map[string]interface{}{"status": 1, "message": "No such user exist"}
 	}
 	token := fields[0]
 	var user User
@@ -323,7 +323,7 @@ func handleCreateGroup(cmdMsg string) *map[string]interface{} {
 	}
 	groupName := fields[1]
 	if !db.Where("groupname = ?", groupName).First(&Group{}).RecordNotFound() {
-		return &map[string]interface{}{"status": 1, "message": groupName + " alreay exist"}
+		return &map[string]interface{}{"status": 1, "message": groupName + " already exist"}
 	}
 	db.Create(&Group{Groupname: groupName, Members: []*User{&user}})
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
