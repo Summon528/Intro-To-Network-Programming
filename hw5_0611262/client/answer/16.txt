@@ -1,0 +1,9 @@
+Not login yet
+Success!
+Usage: list-joined <user>
+DeMo_group1
+DeMo_group2
+Not login yet
+Success!
+DeMo_group1
+DeMo_group3

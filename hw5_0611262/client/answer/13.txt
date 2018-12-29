@@ -1,0 +1,11 @@
+Not login yet
+Success!
+Usage: list-group <user>
+DeMo_group1
+DeMo_group2
+DeMo_group3
+Success!
+DeMo_group1
+DeMo_group2
+DeMo_group3
+Not login yet

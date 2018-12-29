@@ -1,0 +1,8 @@
+list-group DeMo_user1
+login DeMo_user1 DeMo_pwd1
+list-group DeMo_user1 w
+list-group DeMo_user1
+login DeMo_user2 DeMo_pwd2
+list-group DeMo_user2
+list-group
+exit
