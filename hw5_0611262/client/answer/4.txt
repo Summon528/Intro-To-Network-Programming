@@ -4,61 +4,29 @@ Success!
 Success!
 Success!
 Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Usage: logout <user>
+hw4_g1
+hw4_g2
+hw4_g3
+hw4_g4
+No groups
+hw4_g1
+hw4_g4
+No groups
+hw4_g2
+hw4_g3
+No groups
+hw4_g3
+hw4_g2
+No groups
+hw4_g4
+hw4_g1
+Not login yet
+Not login yet
+Not login yet
+Not login yet
+Usage: list-joined <user>
 Bye!
 Bye!
 Bye!
 Bye!
 Bye!
-Bye!
-Bye!
-Bye!
-Bye!
-Bye!
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-Not login yet
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-No such user or password error
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Not login yet
-Not login yet
-Not login yet

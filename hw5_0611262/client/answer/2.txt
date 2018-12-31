@@ -1,25 +1,31 @@
-Usage: login <id> <password>
 Success!
 Success!
 Success!
 Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Usage: login <id> <password>
-Usage: login <id> <password>
-No such user or password error
-Usage: login <id> <password>
+Not login yet
+Not login yet
+Not login yet
+hw4_g1
+hw4_g2
+hw4_g3
+hw4_g4
+Not login yet
+hw4_g1
+hw4_g2
+hw4_g3
+hw4_g4
+Not login yet
+hw4_g1
+hw4_g2
+hw4_g3
+hw4_g4
+Not login yet
+hw4_g1
+hw4_g2
+hw4_g3
+hw4_g4
+Usage: list-group <user>
+Bye!
+Bye!
+Bye!
+Bye!

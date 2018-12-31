@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,10 +13,8 @@ import (
 
 var db = ConnectDB()
 var tokens = make(map[string]string)
-var ip = "127.0.0.1:8081"
-var stompIp = "127.0.0.1:61613"
-var options []func(*stomp.Conn) error = []func(*stomp.Conn) error{
-	stomp.ConnOpt.Login("admin", "admin"),
+var options = []func(*stomp.Conn) error{
+	stomp.ConnOpt.Login("user", AWSPassword),
 	stomp.ConnOpt.HeartBeatError(1000 * time.Hour),
 }
 
@@ -28,12 +28,19 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
-	ip := "127.0.0.1:8081"
+	ip := "0.0.0.0:8888"
 	if len(os.Args) >= 3 {
 		ip = os.Args[1] + ":" + os.Args[2]
 	}
 	defer db.Close()
 	ln, _ := net.Listen("tcp", ip)
+	resp, err := http.Get("http://instance-data/latest/meta-data/instance-id")
+	if err == nil {
+		body, _ := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close()
+		db.FirstOrCreate(&Instance{}, Instance{ID: string(body)})
+	}
+	println("Start Listening")
 	for {
 		conn, _ := ln.Accept()
 		go handleConnection(conn)

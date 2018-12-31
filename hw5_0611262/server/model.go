@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 type User struct {
@@ -37,12 +37,17 @@ type Group struct {
 	Members   []*User `gorm:"many2many:group_members"`
 }
 
+type Instance struct {
+	ID string `gorm:"primary_key"`
+}
+
 func ConnectDB() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "db.sqlite")
+	dbURL := "nphw5:" + AWSPassword + "@tcp(" + DBHost + ")/nphw5?charset=utf8&parseTime=True&loc=Local"
+	db, err := gorm.Open("mysql", dbURL)
 	// db.LogMode(true)
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&User{}, &Post{}, &Group{})
+	db.AutoMigrate(&User{}, &Post{}, &Group{}, &Instance{})
 	return db
 }

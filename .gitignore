@@ -1,6 +1,7 @@
 *
 !/**/
 !*.*
+config.go
 **/vendor
 *.zip
 *.sqlite

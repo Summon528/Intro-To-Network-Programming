@@ -41,7 +41,7 @@ func HandleCmd(cmd string) string {
 	case "post":
 		result = handlePost(cmdMsg)
 	case "receive-post":
-		result = handleRecivePost(cmdMsg)
+		result = handleReceivePost(cmdMsg)
 	case "send":
 		result = handleSend(cmdMsg)
 	case "create-group":
@@ -96,7 +96,8 @@ func handleLogin(cmdMsg string) *map[string]interface{} {
 		user.Token = uuid.New().String()
 		db.Save(&user)
 	}
-	return &map[string]interface{}{"status": 0, "token": user.Token, "message": "Success!"}
+	host := FindEmptyInstance(user.Token)
+	return &map[string]interface{}{"status": 0, "token": user.Token, "message": "Success!", "host": host}
 }
 
 func handleDelete(cmdMsg string) *map[string]interface{} {
@@ -115,6 +116,7 @@ func handleDelete(cmdMsg string) *map[string]interface{} {
 	db.Exec("DELETE FROM invites WHERE user_id = ? OR friend_id = ?", user.ID, user.ID)
 	db.Exec("DELETE FROM group_members WHERE user_id = ?", user.ID)
 	db.Delete(&user)
+	LogoutInstance(token)
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
@@ -131,6 +133,7 @@ func handleLogout(cmdMsg string) *map[string]interface{} {
 	db.Where("token = ?", token).First(&user)
 	user.Token = ""
 	db.Save(&user)
+	LogoutInstance(token)
 	return &map[string]interface{}{"status": 0, "message": "Bye!"}
 }
 
@@ -241,7 +244,7 @@ func handlePost(cmdMsg string) *map[string]interface{} {
 	return &map[string]interface{}{"status": 0, "message": "Success!"}
 }
 
-func handleRecivePost(cmdMsg string) *map[string]interface{} {
+func handleReceivePost(cmdMsg string) *map[string]interface{} {
 	if res, ok := stupidToken(cmdMsg); !ok {
 		return res
 	}
@@ -301,7 +304,7 @@ func handleSend(cmdMsg string) *map[string]interface{} {
 		return &map[string]interface{}{"status": 1, "message": friendName + " is not online"}
 	}
 	msg, _ := json.Marshal(message{Source: user.Username, Message: strings.Join(fields[2:], " ")})
-	stompConn, err := stomp.Dial("tcp", stompIp, options...)
+	stompConn, err := stomp.Dial("tcp", MQHost, options...)
 	if err != nil {
 		panic(err)
 	}
@@ -406,8 +409,8 @@ func handleSendGroup(cmdMsg string) *map[string]interface{} {
 	}
 	db.Where("token = ?", token).First(&user)
 	flag := false
-	for _, memeber := range group.Members {
-		if memeber.ID == user.ID {
+	for _, member := range group.Members {
+		if member.ID == user.ID {
 			flag = true
 			break
 		}
@@ -422,7 +425,7 @@ func handleSendGroup(cmdMsg string) *map[string]interface{} {
 			Group:   groupName,
 		})
 	for _, member := range group.Members {
-		stompConn, err := stomp.Dial("tcp", stompIp, options...)
+		stompConn, err := stomp.Dial("tcp", MQHost, options...)
 		if err != nil {
 			panic(err)
 		}

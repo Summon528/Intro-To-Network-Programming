@@ -17,11 +17,12 @@ type response struct {
 	Status  int
 	Token   string
 	Message string
+	Host    string
 	Friend  []string
 	Invite  []string
 	Group   []string
 	Post    []struct {
-		Id      string
+		ID      string
 		Message string
 	}
 }
@@ -33,13 +34,12 @@ type message struct {
 }
 
 var tokens = make(map[string]string)
-var ip = "127.0.0.1:8081"
-var stompIp = "127.0.0.1:61613"
-var options []func(*stomp.Conn) error = []func(*stomp.Conn) error{
-	stomp.ConnOpt.Login("admin", "admin"),
+var options = []func(*stomp.Conn) error{
+	stomp.ConnOpt.Login("user", AWSPassword),
 	stomp.ConnOpt.HeartBeatError(1000 * time.Hour),
 }
 var connected = make(map[string]bool)
+var userServerHost = make(map[string]string)
 
 func printResp(cmd string, resp response) {
 	if resp.Status != 0 {
@@ -62,7 +62,7 @@ func printResp(cmd string, resp response) {
 	case "receive-post":
 		if len(resp.Post) > 0 {
 			for _, post := range resp.Post {
-				fmt.Println(post.Id + ": " + post.Message)
+				fmt.Println(post.ID + ": " + post.Message)
 			}
 		} else {
 			fmt.Println("No posts")
@@ -96,15 +96,29 @@ func replaceUser(fields []string) (string, string) {
 }
 
 func dial(cmd string) {
-	conn, err := net.Dial("tcp", ip)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
 	fields := strings.Fields(cmd)
 	if len(fields) == 0 {
 		return
 	}
+	destIP := ""
+	if fields[0] == "register" ||
+		fields[0] == "login" ||
+		fields[0] == "delete" ||
+		fields[0] == "logout" ||
+		len(fields) <= 1 {
+		destIP = LoginHost
+	} else {
+		if val, ok := userServerHost[fields[1]]; ok {
+			destIP = val + ":8888"
+		} else {
+			destIP = LoginHost
+		}
+	}
+	conn, err := net.Dial("tcp", destIP)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
 	username, cmd := replaceUser(fields)
 	fmt.Fprint(conn, cmd)
 	bytes, _ := ioutil.ReadAll(conn)
@@ -112,17 +126,21 @@ func dial(cmd string) {
 	json.Unmarshal(bytes, &resp)
 	if fields[0] == "login" && resp.Status == 0 {
 		tokens[fields[1]] = resp.Token
+		userServerHost[fields[1]] = resp.Host
 		subscribed := make(chan bool)
 		if _, prs := connected[username]; !prs {
 			go recvMessages(fields[1], subscribed)
 		}
 		<-subscribed
 	}
+	if (fields[0] == "logout" || fields[0] == "delete") && resp.Status == 0 {
+		delete(userServerHost, fields[1])
+	}
 	printResp(fields[0], resp)
 }
 
 func recvMessages(username string, subscribed chan bool) {
-	stompConn, err := stomp.Dial("tcp", stompIp, options...)
+	stompConn, err := stomp.Dial("tcp", MQHost, options...)
 	if err != nil {
 		panic(err)
 	}
@@ -147,7 +165,7 @@ func recvMessages(username string, subscribed chan bool) {
 
 func main() {
 	if len(os.Args) >= 3 {
-		ip = os.Args[1] + ":" + os.Args[2]
+		LoginHost = os.Args[1] + ":" + os.Args[2]
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {

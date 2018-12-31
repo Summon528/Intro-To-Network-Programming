@@ -8,46 +8,35 @@ Success!
 Success!
 Success!
 Success!
-Usage: list-invite <user>
-DeMo_user10
 Success!
-DeMo_user1
 Success!
-DeMo_user2
-Success!
-No invitations
-Success!
-DeMo_user3
-Success!
-No invitations
-Success!
-DeMo_user5
-Success!
-DeMo_user7
-Success!
-DeMo_user8
-Success!
-DeMo_user9
-Success!
-DeMo_user9
-Success!
-DeMo_user8
-Success!
-DeMo_user7
-Success!
-DeMo_user5
-Success!
-No invitations
-Success!
-DeMo_user3
-Success!
-No invitations
-Success!
-DeMo_user2
-Success!
-DeMo_user1
-Success!
-DeMo_user10
 Not login yet
 Not login yet
 Not login yet
+Not login yet
+Not login yet
+Usage: send <user> <friend> <message>
+No such user exist
+No such user exist
+Success!
+test_hw4_user3 is not your friend
+Success!
+Success!
+Success!
+test_hw4_user4 is not your friend
+test_hw4_user1 is not your friend
+Success!
+Success!
+Success!
+test_hw4_user2 is not your friend
+Success!
+Bye!
+Bye!
+test_hw4_user2 is not online
+test_hw4_user3 is not your friend
+Success!
+Success!
+test_hw4_user2 is not your friend
+test_hw4_user3 is not online
+Bye!
+Bye!

@@ -2,33 +2,31 @@ Success!
 Success!
 Success!
 Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-FAKE_USER does not exist
-Usage: invite <user> <id>
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-Success!
-You cannot invite yourself
-DeMo_user1 has invited you
-Already invited
-Already invited
-Already invited
-Already invited
-Already invited
-Already invited
-Already invited
-Already invited
 Not login yet
 Not login yet
 Not login yet
 Not login yet
+Not login yet
+Usage: send-group <user> <group> <message>
+No such group exist
+No such group exist
+Success!
+You are not the member of hw4_g2
+You are not the member of hw4_g3
+Success!
+You are not the member of hw4_g1
+Success!
+Success!
+You are not the member of hw4_g4
+You are not the member of hw4_g1
+Success!
+Success!
+You are not the member of hw4_g4
+Success!
+You are not the member of hw4_g2
+You are not the member of hw4_g3
+Success!
+Bye!
+Bye!
+Bye!
+Bye!
