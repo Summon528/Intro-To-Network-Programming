@@ -1,6 +1,6 @@
 package main
 
 const AWSPassword = "" // DB & ActiveMQ password
-const MQHost = "ec2-3-86-57-126.compute-1.amazonaws.com:61613"
+const MQHost = "ec2-x-x-x-x.compute-1.amazonaws.com:61613"
 
 var LoginHost = "127.0.0.1:8888"
