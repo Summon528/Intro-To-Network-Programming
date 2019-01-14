@@ -91,6 +91,10 @@ func createInstance() (string, string) {
 }
 
 func FindEmptyInstance(token string) string {
+	if instance, ok := userInstanceID[token]; ok {
+		fmt.Println("already logged in")
+		return instances[instance].PublicDNS
+	}
 	for _, instance := range instances {
 		if instance.Online < 10 {
 			instance.Online++
